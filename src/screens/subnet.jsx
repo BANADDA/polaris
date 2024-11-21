@@ -1,8 +1,8 @@
 import {
-  Bell,
-  MoreHorizontal,
-  Pencil,
-  XCircle
+    Bell,
+    MoreHorizontal,
+    Pencil,
+    XCircle
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -151,7 +151,7 @@ const ClusterDashboard = ({darkMode}) => {
     });
 
     return (
-        <div className={`min-h-screen max-w-7xl w-full p-4 rounded-lg shadow-lg ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} sm:p-6 lg:p-10`}>
+        <div className={`min-h-screen max-w-full w-full p-4 rounded-lg shadow-lg ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} sm:p-6 lg:p-10`}>
             {/* Top Navigation */}
             <div className={`max-w-full pb-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                 <div className="w-full mx-auto">
