@@ -7,7 +7,7 @@ import LeaderboardCard from './LeaderboardCard';
 import miners from './minersData';
 import TableRow from './TableRow';
 
-const PolarisDashboard = () => {
+const PolarisDashboard = (darkMode={darkMode}) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMiner, setSelectedMiner] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: 'rank', direction: 'asc' });
@@ -38,13 +38,13 @@ const PolarisDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className={`min-h-screen${darkMode ? 'bg-gray-50' : 'bg-gray-900'}`}>
       <div className="max-w-full mx-auto px-8 py-6">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-semibold text-gray-900">Polaris Subnet Miners</h1>
+              <h1 className={`text-2xl font-semibold text-gray-600`}>Polaris Subnet Miners</h1>
               <p className="text-gray-500 mt-1">Top performers receive TAO rewards daily</p>
             </div>
             <div className="flex items-center gap-3">

@@ -102,7 +102,7 @@ const SubnetHome = () => {
                     ) : (
                         <div className="rounded-lg">
                         <World initialMarkers={defaultMarkers} darkMode={darkMode} />
-                        <PolarisDashboard/>
+                        <PolarisDashboard darkMode={darkMode}/>
                         
 
                             {/* POLARIS Summary Section */}
