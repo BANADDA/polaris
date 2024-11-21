@@ -5,10 +5,10 @@ import { FaApple, FaFacebook, FaGithub, FaInstagram, FaLinkedin, FaTwitter } fro
 import { SiAmd, SiIntel, SiNvidia } from 'react-icons/si';
 import { Link } from 'react-router-dom';
 import GPUSelectionApp from './ClusterDeployment';
-import Demo from './HeatMap';
 import World from './Nodes/Globe.jsx';
 import defaultMarkers from "./Nodes/markers.js";
 import ClusterDashboard from './subnet';
+import PolarisDashboard from './widgets/PolarisDashboard.jsx';
 
 const SubnetHome = () => {
     const [isMinersView, setIsMinersView] = useState(false);
@@ -102,10 +102,11 @@ const SubnetHome = () => {
                     ) : (
                         <div className="rounded-lg">
                         <World initialMarkers={defaultMarkers} darkMode={darkMode} />
+                        <PolarisDashboard/>
                         
 
                             {/* POLARIS Summary Section */}
-                            <div className={`w-full lg:w-2/3 mx-auto p-6 pt-0 border-b lg:border-b-0 ${darkMode ? 'border-gray-700' : 'border-white'}`}>
+                            {/* <div className={`w-full lg:w-2/3 mx-auto p-6 pt-0 border-b lg:border-b-0 ${darkMode ? 'border-gray-700' : 'border-white'}`}>
                                 <h3 className="text-lg font-semibold mb-4 text-center">POLARIS</h3>
                                 <h4 className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-gray-700'} mb-4 text-center`}>
                                     Supply Insights and Overview
@@ -114,7 +115,7 @@ const SubnetHome = () => {
                                     <Demo darkMode={darkMode} />
 
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     )}
                 </div>
