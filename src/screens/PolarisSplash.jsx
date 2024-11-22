@@ -1,5 +1,4 @@
-import Lottie from 'lottie-react';
-import { Terminal } from 'lucide-react';
+import { motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 
 const PolarisSplash = ({ onLoadingComplete }) => {
@@ -54,21 +53,66 @@ const PolarisSplash = ({ onLoadingComplete }) => {
         </div>
       </div>
 
+      {/* Animated Particles */}
+      <div className="absolute inset-0">
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 bg-cyan-200 rounded-full opacity-20"
+            initial={{
+              x: Math.random() * window.innerWidth,
+              y: Math.random() * window.innerHeight,
+            }}
+            animate={{
+              y: [null, -20, 20],
+              opacity: [0.2, 0.3, 0.2],
+            }}
+            transition={{
+              duration: 8 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 4,
+            }}
+          />
+        ))}
+      </div>
+
       <div className="relative h-full w-full flex flex-col items-center justify-center px-6 py-12 space-y-16">
-        {/* Lottie Animation */}
-        <div className="relative w-[400px] h-[400px]">
-          {animationData ? (
-            <Lottie
-              animationData={animationData}
-              loop={true}
-              autoplay={true}
-              style={{ width: '100%', height: '100%' }}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <Terminal className="w-24 h-24 text-blue-400 animate-pulse" />
+        {/* Pulsing Logo Animation */}
+        <div className="relative w-40 h-40 mx-auto">
+          <motion.div
+            className="absolute inset-0 rounded-full border-4 border-cyan-200"
+            animate={{
+              scale: [1, 1.1, 1],
+              opacity: [0.3, 0.4, 0.3],
+            }}
+            transition={{
+              duration: 6,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+          <motion.div
+            className="absolute inset-2 rounded-full border-4 border-cyan-300"
+            animate={{
+              scale: [1.1, 1, 1.1],
+              opacity: [0.2, 0.3, 0.2],
+            }}
+            transition={{
+              duration: 6,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 1.5
+            }}
+          />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-28 h-28 bg-gradient-to-br from-cyan-200 to-blue-300 rounded-full flex items-center justify-center shadow-lg">
+              <svg className="w-14 h-14 text-cyan-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                  d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" 
+                />
+              </svg>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Text and Progress Section */}
