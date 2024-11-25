@@ -34,7 +34,7 @@
     "d3-dsv": "^3.0.1",
     "date-fns": "^3.6.0",
     "file-saver": "^2.0.5",
-    "firebase": "^10.10.0",
+    "firebase": "^10.14.1",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",
     "lottie-react": "^2.4.0",

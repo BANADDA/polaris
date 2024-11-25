@@ -2,9 +2,9 @@ import { collection, onSnapshot } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { FaMapMarkerAlt, FaMemory, FaMicrochip } from 'react-icons/fa';
 import { SiAmd, SiNvidia } from 'react-icons/si';
-import { db } from '../auth/config/firebase-config';
 import ChipSelection from './ConnectivitySelection';
 import OwnComputerCard from './Nodes/UseOwnComputerCard';
+import db from './firebase/config';
 
 const SelectionPanel = ({ selectedGPU, darkMode, onContinue }) => {
     // Determine availability based on containers

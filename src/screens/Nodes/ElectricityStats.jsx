@@ -4,28 +4,29 @@ import React from 'react';
 const ComputeOptions = ({ darkMode }) => {
     const providers = [
         { 
-            name: 'NVIDIA Cloud', 
-            subnet: 'A100 Subnet',
+            name: 'XRay Detection', 
+            subnet: 'Coming Soon',
             availability: '99.9%',
+            // TODO Make Availability Dynamic
             icon: HardDrive,
             specs: 'Up to 80GB VRAM'
         },
         { 
-            name: 'AMD Instinct', 
+            name: 'News Generation', 
             subnet: 'MI250 Network',
             availability: '99.7%',
             icon: Server,
             specs: 'Up to 128GB VRAM'
         },
         { 
-            name: 'Google Cloud GPU', 
+            name: 'Video Generation', 
             subnet: 'TPU Subnet',
             availability: '99.8%',
             icon: Cloud,
             specs: 'Custom TPU architecture'
         },
         { 
-            name: 'AWS GPU Cloud', 
+            name: 'Audio Generation', 
             subnet: 'P4d Subnet',
             availability: '99.9%',
             icon: Zap,
@@ -62,7 +63,7 @@ const ComputeOptions = ({ darkMode }) => {
                         </div>
                         <div className="flex items-center justify-between mt-2">
                             <span className={`text-xs ${subTextColor}`}>
-                                Availability: {provider.availability}
+                                Model Update: {provider.availability}
                             </span>
                             <span className={`text-xs ${subTextColor}`}>
                                 {provider.specs}

@@ -1,9 +1,9 @@
-// RegistrationForm.js
-
+import { addDoc, arrayUnion, collection, doc, updateDoc } from 'firebase/firestore';
 import { AlertCircle } from 'lucide-react';
 import React, { useState } from 'react';
+import db from '../firebase/config';
 
-const RegistrationForm = ({ onSubmit, jobDetails }) => {
+const RegistrationForm = ({ onSubmit, job }) => {
   const [formData, setFormData] = useState({
     walletKey: '',
     huggingfaceRepo: '',
@@ -15,9 +15,64 @@ const RegistrationForm = ({ onSubmit, jobDetails }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const generateMinerKey = async (jobId, username) => {
+    const now = new Date();
+    const expDate = new Date(job.endDate);
+    const prefix = 'TR';
+    const timestamp = now.getTime().toString(36).toUpperCase();
+    const random = Math.random().toString(36).substr(2, 6).toUpperCase();
+    return `${prefix}_${jobId}_${username.toUpperCase()}_${timestamp}_${random}`;
+  };
+
+  const registerMiner = async (minerData) => {
+    try {
+      // 1. Generate unique training key
+      const trainingKey = await generateMinerKey(job.id, minerData.username);
+
+      // 2. Create miner document
+      const minerDoc = {
+        ...minerData,
+        trainingKey,
+        jobId: job.id,
+        status: 'registered',
+        createdAt: new Date().toISOString(),
+        expiresAt: job.endDate,
+        metrics: {
+          currentLoss: null,
+          bestLoss: null,
+          currentAccuracy: null,
+          bestAccuracy: null,
+          uptime: 0,
+        },
+        progress: 0
+      };
+
+      // 3. Add miner to miners collection
+      const minerRef = await addDoc(collection(db, 'miners'), minerDoc);
+
+      // 4. Update job's miners array
+      const jobRef = doc(db, 'fine-tune-jobs', job.id);
+      await updateDoc(jobRef, {
+        miners: arrayUnion(minerRef.id),
+        'minerStats.inProgress': job.minerStats.inProgress + 1
+      });
+
+      return { ...minerDoc, id: minerRef.id };
+    } catch (error) {
+      console.error('Error registering miner:', error);
+      throw error;
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    try {
+      const minerData = await registerMiner(formData);
+      onSubmit(minerData);
+    } catch (error) {
+      console.error('Registration failed:', error);
+      // Handle error appropriately
+    }
   };
 
   return (
@@ -86,8 +141,8 @@ const RegistrationForm = ({ onSubmit, jobDetails }) => {
         <div className="flex gap-3">
           <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
           <div className="text-sm text-yellow-800">
-            <strong>Important:</strong> The training key you'll receive is only valid for this job's duration 
-            ({jobDetails.startDate} - {jobDetails.endDate}). Make sure you have set up your Hugging Face 
+            <strong>Important:</strong> The training key you'll receive is only valid for this job's duration
+            ({job.startDate} - {job.endDate}). Make sure you have set up your Hugging Face
             repository before proceeding.
           </div>
         </div>
@@ -95,7 +150,7 @@ const RegistrationForm = ({ onSubmit, jobDetails }) => {
 
       <button
         type="submit"
-        className="w-full py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 
+        className="w-full py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600
           transition-colors font-medium"
       >
         Submit Registration
