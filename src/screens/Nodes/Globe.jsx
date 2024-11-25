@@ -1,52 +1,78 @@
+import { collection, onSnapshot } from 'firebase/firestore';
 import React, { useEffect, useRef, useState } from "react";
 import Globe from "react-globe.gl";
 import * as THREE from "three";
+import db from '../firebase/config';
 import ElectricityStats from "./ElectricityStats";
-import cities from "./markers";
+import { coordinatesDB } from './coordinates';
 
-const Modal = ({ city, onClose }) => {
-    if (!city) return null;
+const Modal = ({ locationData, onClose }) => {
+    if (!locationData) return null;
 
     return (
         <div
-            className="fixed inset-0 bg-black/20 flex items-center justify-center p-4 z-50"
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4 z-50"
             onClick={onClose}
         >
             <div
-                className="bg-white rounded-xl w-full max-w-sm overflow-hidden shadow-xl"
+                className="bg-white rounded-xl w-full max-w-md overflow-hidden shadow-xl"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="bg-gradient-to-r from-pink-400 to-pink-500 p-3 relative">
                     <div className="flex justify-center">
                         <div className="p-3 inline-block">
-                            <div className="absolute inset-0 flex items-center justify-center flex-wrap gap-1">
-                                <span className="text-lg md:text-xl font-semibold text-gray-800">POLARIS</span>
-                                <span className="text-lg md:text-xl font-semibold text-gray-800">-</span>
-                                <span className="text-lg md:text-xl font-semibold text-gray-800">COMMUNEX</span>
+                            <div className="flex items-center justify-center flex-wrap gap-1">
+                                <span className="text-lg md:text-xl font-semibold text-white">
+                                    {locationData.name}
+                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="p-4 md:p-8">
-                    <div className="grid grid-cols-1 gap-1 mb-4 md:mb-8">
-                        <div className="bg-blue-50 rounded-xl p-3 md:p-4">
-                            <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                                <span className="text-blue-600 font-medium text-sm md:text-base">Region: {city.name}</span>
+                <div className="p-6">
+                    <div className="space-y-4">
+                        <div className="bg-blue-50 rounded-xl p-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                                    <span className="text-blue-600 font-medium">Active Miners</span>
+                                </div>
+                                <span className="text-blue-600 font-bold">{locationData.miners.length}</span>
                             </div>
                         </div>
-                        <div className="bg-green-50 rounded-xl p-3 md:p-4">
-                            <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                                <span className="text-green-600 font-medium text-sm md:text-base">Active Subnets: {city.subnets}</span>
-                            </div>
+                        
+                        <div className="space-y-2">
+                            {locationData.miners.map((miner, index) => (
+                                <div 
+                                    key={index}
+                                    className="bg-gray-50 rounded-lg p-3 flex justify-between items-center"
+                                >
+                                    <div>
+                                        <div className="font-medium text-gray-900">{miner.username}</div>
+                                        <div className="text-sm text-gray-500">Status: {miner.status}</div>
+                                    </div>
+                                    {miner.metrics?.currentLoss && (
+                                        <div className="text-right">
+                                            <div className="text-sm font-medium text-gray-900">
+                                                Loss: {miner.metrics.currentLoss.toFixed(4)}
+                                            </div>
+                                            <div className="text-xs text-gray-500">
+                                                Best: {miner.metrics.bestLoss.toFixed(4)}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
                         </div>
                     </div>
-                    <div className="flex justify-center">
+
+                    <div className="mt-6 flex justify-center">
                         <button
                             onClick={onClose}
-                            className="px-6 md:px-8 py-2 bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-full hover:from-pink-600 hover:to-pink-700 transition-all duration-300 shadow-lg shadow-pink-500/20 font-medium text-sm md:text-base"
+                            className="px-8 py-2 bg-gradient-to-r from-pink-500 to-pink-600 text-white 
+                                rounded-full hover:from-pink-600 hover:to-pink-700 transition-all 
+                                duration-300 shadow-lg shadow-pink-500/20 font-medium"
                         >
                             Close
                         </button>
@@ -60,15 +86,81 @@ const Modal = ({ city, onClose }) => {
 const World = ({darkMode}) => {
     const globeEl = useRef();
     const [spriteMap, setSpriteMap] = useState(null);
-    const [objectsData, setObjectsData] = useState([]);
+    const [minerLocations, setMinerLocations] = useState([]);
     const [connectionsData, setConnectionsData] = useState([]);
-    const [selectedCity, setSelectedCity] = useState(null);
+    const [selectedLocation, setSelectedLocation] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    
     const [dimensions, setDimensions] = useState({
         width: typeof window !== 'undefined' ? window.innerWidth : 800,
         height: typeof window !== 'undefined' ? window.innerHeight : 600
     });
 
+    useEffect(() => {
+        // Listen to miners collection
+        const minersRef = collection(db, "miners");
+        
+        const unsubscribe = onSnapshot(minersRef, (snapshot) => {
+            const locations = new Map();
+            
+            snapshot.docs.forEach(doc => {
+                const miner = doc.data();
+                const locationRaw = miner.location?.toLowerCase() || '';
+                
+                // Extract city or country from location string
+                const locationParts = locationRaw.split(',').map(part => part.trim());
+                let coordinates = null;
+                
+                // Try to match city first, then country
+                for (const part of locationParts) {
+                    if (coordinatesDB[part]) {
+                        coordinates = coordinatesDB[part];
+                        break;
+                    }
+                }
+                
+                // If coordinates found, group miners by location
+                if (coordinates) {
+                    const locationKey = `${coordinates.lat},${coordinates.lng}`;
+                    if (!locations.has(locationKey)) {
+                        locations.set(locationKey, {
+                            name: miner.location,
+                            lat: coordinates.lat,
+                            lng: coordinates.lng,
+                            miners: []
+                        });
+                    }
+                    
+                    const locationData = locations.get(locationKey);
+                    locationData.miners.push({
+                        username: miner.username,
+                        status: miner.status,
+                        metrics: miner.metrics
+                    });
+                }
+            });
+            
+            const locationArray = Array.from(locations.values());
+            setMinerLocations(locationArray);
+            
+            // Create connections between active locations
+            if (locationArray.length > 1) {
+                setConnectionsData(
+                    locationArray.map((location, index) => ({
+                        startLat: location.lat,
+                        startLng: location.lng,
+                        endLat: locationArray[(index + 1) % locationArray.length].lat,
+                        endLng: locationArray[(index + 1) % locationArray.length].lng,
+                        color: darkMode ? '#FFD700' : '#342907FF',
+                    }))
+                );
+            }
+        });
+
+        return () => unsubscribe();
+    }, [darkMode]);
+
+    // Rest of your existing Globe setup code...
     useEffect(() => {
         const handleResize = () => {
             setDimensions({
@@ -125,21 +217,6 @@ const World = ({darkMode}) => {
     }, []);
 
     useEffect(() => {
-        if (spriteMap) {
-            setObjectsData(cities);
-            setConnectionsData(
-                cities.map((city, index) => ({
-                    startLat: city.lat,
-                    startLng: city.lng,
-                    endLat: cities[(index + 1) % cities.length].lat,
-                    endLng: cities[(index + 1) % cities.length].lng,
-                    color: darkMode ? '#FFD700' : '#342907FF', // Changed color for dark mode
-                }))
-            );
-        }
-    }, [spriteMap, darkMode]);
-
-    useEffect(() => {
         const rotationSpeed = 0.1;
         const rotateGlobe = () => {
             if (globeEl.current) {
@@ -167,37 +244,40 @@ const World = ({darkMode}) => {
                     backgroundImageUrl={darkMode ? "//unpkg.com/three-globe/example/img/night-sky.png" : ""}
                     backgroundColor={darkMode ? "rgba(0,0,0,1)" : "rgba(255,255,255,1)"}
                     showAtmosphere={true}
-                    objectsData={objectsData}
+                    objectsData={minerLocations}
                     arcsData={connectionsData}
-                    objectLat={(d) => d.lat}
-                    objectLng={(d) => d.lng}
+                    objectLat="lat"
+                    objectLng="lng"
                     objectAltitude={0.04}
-                    objectLabel={(d) => d.name}
+                    objectLabel={(d) => `${d.name} (${d.miners.length} miners)`}
                     objectThreeObject={(d) => {
-                        const spriteMaterial = new THREE.SpriteMaterial({ map: spriteMap, color: 0xffffff });
+                        const spriteMaterial = new THREE.SpriteMaterial({ 
+                            map: spriteMap, 
+                            color: d.miners.some(m => m.status === 'active') ? 0x00ff00 : 0xff0000 
+                        });
                         const sprite = new THREE.Sprite(spriteMaterial);
                         const scale = dimensions.width < 768 ? 1.5 : 2.5;
                         sprite.scale.set(scale, scale, scale);
                         return sprite;
                     }}
-                    arcStartLat={(d) => d.startLat}
-                    arcStartLng={(d) => d.startLng}
-                    arcEndLat={(d) => d.endLat}
-                    arcEndLng={(d) => d.endLng}
-                    arcColor={(d) => d.color}
+                    arcStartLat="startLat"
+                    arcStartLng="startLng"
+                    arcEndLat="endLat"
+                    arcEndLng="endLng"
+                    arcColor="color"
                     arcDashLength={0.1}
                     arcDashGap={0.02}
                     arcDashInitialGap={(d) => Math.random()}
                     arcStroke={0.15}
                     arcDashAnimateTime={15000}
-                    onObjectClick={(city) => {
-                        setSelectedCity(city);
+                    onObjectClick={(location) => {
+                        setSelectedLocation(location);
                         setShowModal(true);
                     }}
                 />
                 {showModal && (
                     <Modal
-                        city={selectedCity}
+                        locationData={selectedLocation}
                         onClose={() => setShowModal(false)}
                     />
                 )}
