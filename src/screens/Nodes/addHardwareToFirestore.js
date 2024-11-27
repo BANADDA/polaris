@@ -1,5 +1,6 @@
+// addHardwareToFirestore.js
 import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
-import { db } from "../../../auth/config/firebase-config";
+import db from '../firebase/config';
 
 const addHardwareToFirestore = async () => {
   const gpuData = [

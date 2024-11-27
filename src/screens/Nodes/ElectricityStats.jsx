@@ -4,33 +4,36 @@ import React from 'react';
 const ComputeOptions = ({ darkMode }) => {
     const providers = [
         { 
-            name: 'XRay Detection', 
-            subnet: 'Coming Soon',
+            name: 'GPU Rental Service', 
+            subnet: 'A100/H100 Network',
             availability: '99.9%',
-            // TODO Make Availability Dynamic
             icon: HardDrive,
-            specs: 'Up to 80GB VRAM'
+            specs: 'Up to 80GB VRAM',
+            description: 'High-performance GPU clusters for ML workloads'
         },
         { 
-            name: 'News Generation', 
-            subnet: 'MI250 Network',
-            availability: '99.7%',
-            icon: Server,
-            specs: 'Up to 128GB VRAM'
-        },
-        { 
-            name: 'Video Generation', 
-            subnet: 'TPU Subnet',
+            name: 'Distributed Training', 
+            subnet: 'Communex & Bittensor',
             availability: '99.8%',
-            icon: Cloud,
-            specs: 'Custom TPU architecture'
+            icon: Server,
+            specs: 'Scalable Multi-node',
+            description: 'Decentralized training infrastructure'
         },
         { 
-            name: 'Audio Generation', 
-            subnet: 'P4d Subnet',
-            availability: '99.9%',
+            name: 'Model Inferencing', 
+            subnet: 'Inference Network',
+            availability: '99.95%',
+            icon: Cloud,
+            specs: 'Low-latency Serving',
+            description: 'Production-grade model deployment'
+        },
+        { 
+            name: 'Network Orchestration', 
+            subnet: 'Management Layer',
+            availability: '99.99%',
             icon: Zap,
-            specs: 'Elastic GPU scaling'
+            specs: 'Automated Scaling',
+            description: 'Smart resource allocation & monitoring'
         }
     ];
 
@@ -39,33 +42,40 @@ const ComputeOptions = ({ darkMode }) => {
     const subTextColor = darkMode ? 'text-gray-300' : 'text-gray-600';
     const cardBg = darkMode ? 'bg-gray-800' : 'bg-gray-50';
     const borderColor = darkMode ? 'border-gray-700' : 'border-gray-200';
+    const hoverEffect = 'transition-all duration-300 hover:scale-105 hover:shadow-xl';
 
     return (
-        <div className={`p-6 ${bgColor} rounded-lg`}>
-            <h2 className="text-lg font-semibold mb-4 text-blue-500 leading-snug">
-                Powering Subnet Operations
-            </h2>
+        <div className={`p-4 ${bgColor} rounded-xl`}>
+            <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
+                    Enterprise Compute Solutions
+                </h2>
+                <div className={`${cardBg} px-2 py-1 rounded-full ${textColor} text-sm`}>
+                    <span className="text-blue-500 font-bold">POLARIS</span> Network
+                </div>
+            </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                 {providers.map((provider) => (
                     <div 
                         key={provider.name} 
-                        className={`${cardBg} p-4 rounded-lg border ${borderColor} transition-transform hover:scale-105 transform hover:shadow-md`}
+                        className={`${cardBg} p-3 rounded-xl border ${borderColor} ${hoverEffect}`}
                     >
                         <div className="flex items-center mb-2">
-                            <div className="w-8 h-8 flex items-center justify-center bg-blue-500 rounded-full">
-                                <provider.icon size={20} className="text-white" />
+                            <div className="w-8 h-8 flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl">
+                                <provider.icon size={16} className="text-white" />
                             </div>
-                            <div className="ml-3">
-                                <h3 className={`text-sm font-medium ${textColor}`}>{provider.name}</h3>
+                            <div className="ml-2">
+                                <h3 className={`text-sm font-bold ${textColor}`}>{provider.name}</h3>
                                 <p className={`text-xs ${subTextColor}`}>{provider.subnet}</p>
                             </div>
                         </div>
-                        <div className="flex items-center justify-between mt-2">
-                            <span className={`text-xs ${subTextColor}`}>
-                                Model Update: {provider.availability}
+                        <p className={`text-xs ${subTextColor} mb-2`}>{provider.description}</p>
+                        <div className="flex items-center justify-between pt-2 border-t border-dashed border-gray-600">
+                            <span className={`text-xs font-medium ${textColor}`}>
+                                Uptime: {provider.availability}
                             </span>
-                            <span className={`text-xs ${subTextColor}`}>
+                            <span className={`text-xs font-medium ${textColor}`}>
                                 {provider.specs}
                             </span>
                         </div>
@@ -73,18 +83,27 @@ const ComputeOptions = ({ darkMode }) => {
                 ))}
             </div>
 
-            <div className={`${cardBg} p-4 rounded-lg border ${borderColor}`}>
-                <div className={`text-lg font-bold ${textColor} tracking-tight`}>
-                    4.2M<span className="text-blue-500">+</span>
+            <div className={`${cardBg} p-3 rounded-xl border ${borderColor} ${hoverEffect}`}>
+                <div className="flex items-center justify-between mb-3">
+                    <div>
+                        <div className={`text-xl font-bold ${textColor} tracking-tight`}>
+                            4.2M<span className="text-blue-500">+</span>
+                        </div>
+                        <p className={`text-xs ${subTextColor} mt-1`}>
+                            GPU cores powering global ML infrastructure
+                        </p>
+                    </div>
+                    <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-2 rounded-xl">
+                        <Cloud size={20} className="text-white" />
+                    </div>
                 </div>
-                <p className={`text-sm ${subTextColor} mt-1`}>
-                    GPU cores worldwide supporting POLARIS&apos;s Miner and Validator Subnets
-                </p>
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                    {['24/7 Accessibility', 'Global Reach', 'Auto-scaling', 'Load Balancing'].map((feature) => (
-                        <div key={feature} className="flex items-center">
-                            <Check size={14} className="text-blue-500 mr-1" />
-                            <span className={`text-xs ${subTextColor}`}>{feature}</span>
+                <div className="grid grid-cols-2 gap-2">
+                    {['24/7 Availability', 'Global Infrastructure', 'Auto-scaling', 'Load Balancing'].map((feature) => (
+                        <div key={feature} className="flex items-center space-x-1">
+                            <div className="w-4 h-4 flex items-center justify-center bg-blue-500/20 rounded-full">
+                                <Check size={10} className="text-blue-500" />
+                            </div>
+                            <span className={`text-xs font-medium ${textColor}`}>{feature}</span>
                         </div>
                     ))}
                 </div>
